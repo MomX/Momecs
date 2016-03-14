@@ -6,6 +6,7 @@ library(shinydashboard)
 library(Momocs)
 devtools::load_all("~/Research/Momocs/")
 
+bp <- PCA(efourier(bot))
 # load domestic functions
 source("local.R")
 
@@ -166,28 +167,88 @@ server <- shinyServer(function(input, output) {
       numericInput(inputId = "pca_yax",
                    label = "Axis2",
                    value = 2, 1, ncol(data_pca()$x), 1),
-      # plot width
-      sliderInput(inputId = "pca_plot_width",
-                  label = "Plot width",
-                  min=200, max=1600, value=800, step = 100),
 
-      # plot zoom
-      sliderInput(inputId="pca_zoom",
-                  label="zoom (<=1 to display all points)",
+      # points
+      h3("Points"),
+      checkboxInput("pca_points",
+                    label = "Add points",
+                    value = TRUE),
+
+      sliderInput(inputId = "pca_cex",
+                  label = "Points cex",
                   min=0.1, max=5, value=1, step=0.1),
 
-      # labels
       checkboxInput(inputId = "pca_labelsgroups",
                     label = "Label groups",
                     value = TRUE),
 
       selectInput(inputId = "pca_labelspoints",
-                  label="Label points using:",
+                  label="Label points using",
                   choices=c(FALSE, colnames(data_pca()$fac)),
                   selected=FALSE,
                   multiple=FALSE,
                   selectize=FALSE),
+
+      checkboxInput(inputId = "pca_abbreviate.labelspoints",
+                    label="Abbreviate points labels",
+                    value=FALSE),
+
+      # Groups
+      h3("Groups"),
+      checkboxInput(inputId = "pca_abbreviate.labelsgroups",
+                    label="Abbreviate groups labels",
+                    value=FALSE),
+
+      checkboxInput("pca_ellipses",
+                    label = "Add confidence ellipses",
+                    value = TRUE),
+
+     sliderInput("pca_conf.ellipses",
+                  "Confidence level",
+                  min=0, max=1, value=0.5, step=0.05),
+
+      checkboxInput("pca_ellipsesax",
+                    "Add (0.5, 0.75, 0.9) conf. ellipses axes",
+                    value = FALSE),
+
+     checkboxInput("pca_delaunay",
+                   "Add Delaunay mesh",
+                   FALSE),
+
+      checkboxInput("pca_chull",
+                    "Add convex hulls",
+                    FALSE),
+
+     checkboxInput("pca_chull.filled",
+                   "Add filled convex hulls",
+                    FALSE),
+
+     sliderInput("pca_chull.filled.alpha",
+                  "Filled convex hulls transparency",
+                 0.5, 1, 0.92, 0.01),
+
+     checkboxInput("pca_density",
+                   "Add kde density",
+                   FALSE),
+
+     sliderInput("pca_lev.n.kde2d",
+                 "Number of grid points",
+                  10, 200, 10, 10),
+
+     sliderInput("pca_lev.density",
+                   "Number of density levels",
+                   1, 100, 10, 1),
+
+     checkboxInput("pca_contour",
+                   "Add contours",
+                   FALSE),
+
+     sliderInput("pca_lev.contour",
+                   "Number of contour levels",
+                   1, 20, 5, 1),
+
       # morphospace
+      h3("Morphospace"),
       checkboxInput("pca_morphospace",
                     label = "Display morphospace",
                     value = TRUE),
@@ -201,29 +262,53 @@ server <- shinyServer(function(input, output) {
                                  "range_axes" = "range_axes",
                                  "full_axes" = "full_axes"),
                   selected = "full"),
-      # points
-      checkboxInput("pca_points",
-                    label = "Add points",
-                    value = TRUE),
 
-      # group dispersion
-      checkboxInput("pca_ellipses",
-                    label = "Add (0.5) confidence ellipses",
-                    value = TRUE),
+     #Cosmetics
+      h3("Cosmetics"),
 
-      checkboxInput("pca_ellipsesax",
-                    label = "Add (0.5, 0.75, 0.9) conf. ellipses axes",
-                    value = FALSE),
+     textInput("pca_title",
+               "Plot title",
+               "PCA",
+               "100%"),
 
-      checkboxInput("pca_chull",
-                    label = "Add convex hulls",
-                    value = FALSE),
+     selectInput("pca_palette",
+                 label="Color palette",
+                 choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
+                 selected="col_qual"),
 
-      # palette picker
-      selectInput("pca_palette",
-                  label="Color palette",
-                  choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
-                  selected="col_qual")
+     textInput("pca_bg",
+               "Background color",
+               "#FFFFFF",
+               "100%"),
+
+      sliderInput(inputId = "pca_plot_width",
+                  label = "Plot width",
+                  min=200, max=1600, value=800, step = 100),
+
+      # plot zoom
+      sliderInput(inputId="pca_zoom",
+                  label="zoom (<=1 to display all points)",
+                  min=0.1, max=5, value=1, step=0.1),
+
+     checkboxInput("pca_grid",
+                   "Add grid",
+                   TRUE),
+
+     numericInput("pca_nb.grids",
+                  "Number of grids",
+                  3, 0, 10, 1),
+
+     checkboxInput("pca_rug",
+                   "Add rug",
+                   TRUE),
+
+     checkboxInput("pca_eigen",
+                   "Add eigen screeplot",
+                   TRUE),
+
+     checkboxInput("pca_box",
+                   "Add a box",
+                   TRUE)
     ))
 
 
@@ -238,31 +323,38 @@ server <- shinyServer(function(input, output) {
     plot(data_pca(),
          fac = fac,
          zoom=input$pca_zoom, xax=input$pca_xax, yax=input$pca_yax,
+         points=input$pca_points, cex=input$pca_cex,
          palette=palette_deliver(input$pca_palette),
-         morphospace = input$pca_morphospace, pos.shp=input$pca_pos.shp,
-         points=input$pca_points, ellipses=input$pca_ellipses,
-         ellipsesax=input$pca_ellipsesax,
-         chull=input$pca_chull,
-         labelsgroups=input$pca_labelsgroups,
+
+         morphospace = input$pca_morphospace,
+         pos.shp=input$pca_pos.shp,
+
          labelspoints=ifelse(input$pca_labelspoints==FALSE, FALSE, input$pca_labelspoints),
-         cex.labelspoints = 1.2)
+         abbreviate.labelspoints=input$pca_abbreviate.labelspoints,
+         labelsgroups=input$pca_labelsgroups,
+
+         abbreviate.labelsgroups=input$pca_abbreviate.labelsgroups,
+         ellipses=input$pca_ellipses,
+         conf.ellipses=input$pca_conf.ellipses,
+
+         ellipsesax=input$pca_ellipsesax,
+
+         chull=input$pca_chull,
+         chull.filled=input$pca_chull.filled,
+         chull.filled.alpha=input$pca_chull.filled.alpha,
+
+         delaunay=input$pca_delaunay,
+
+         density=input$pca_density, lev.n.kde2d=input$pca_lev.n.kde2d,
+
+         contour=input$pca_contour, lev.contour=input$pca_lev.contour,
+         cex.labelspoints = 1.2,
+
+         title=input$pca_title, grid=input$pca_grid, nb.grids=input$pca_nb.grids,
+         rug=input$pca_rug, eigen=input$pca_eigen, box=input$pca_box, bg=input$pca_bg)
   },
   width=exprToFunction(input$pca_plot_width),
   height=exprToFunction(input$pca_plot_width))
-
-  # PCA and its plot
-
-
-  # data <- callModule(module_server_data, "data", data=data)
-
-  # filtering
-  # data_filtered <- callModule(module_server_filter, "filter", data=data)
-  # output$data_filtered <- renderPrint(data_filtered())
-
-  # pca
-  # data_pca <- reactive(PCA(data_filtered()))
-  # output$pca_plot <- callModule(module_server_pca, "pca", data=data_pca())
-  # output$pca_plot <- renderPlot(plot(data_pca(), 1), width = 800, height=800)
 
 })
 
