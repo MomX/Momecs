@@ -75,10 +75,14 @@ ui <- dashboardPage(
       tabItem(tabName = "lda",
               fluidRow(
                 column(3,
-                       h3("Options")
+                       h3("Options"),
+                       uiOutput("lda_ui")
                 ),
                 column(9,
-                       h3("Plot")
+                       h3("Plot"),
+                       plotOutput("lda_plot"),
+                       h3("CV confusion matrix"),
+                       plotOutput("lda_plot_CV")
                 )
               )
       ),
@@ -86,10 +90,12 @@ ui <- dashboardPage(
       tabItem(tabName = "clust",
               fluidRow(
                 column(3,
-                       h3("Options")
+                       h3("Options"),
+                       uiOutput("clust_ui")
                 ),
                 column(9,
-                       h3("Plot")
+                       h3("Plot"),
+                       plotOutput("clust_plot")
                 )
               )
       ),
@@ -97,10 +103,13 @@ ui <- dashboardPage(
       tabItem(tabName = "kmeans",
               fluidRow(
                 column(3,
-                       h3("Options")
+                       h3("Options"),
+                       em("work in progress"),
+                       uiOutput("kmeans_ui")
                 ),
                 column(9,
-                       h3("Plot")
+                       h3("Plot"),
+                       plotOutput("kmeans_plot")
                 )
               )
       )
@@ -141,8 +150,7 @@ server <- shinyServer(function(input, output) {
     PCA(data_filtered())
   })
 
-
-  # pca ui
+  # pca ui -----------
   # each column in fac becomes a selectInput
   output$pca_ui <- renderUI(
     list(
@@ -203,7 +211,7 @@ server <- shinyServer(function(input, output) {
                     label = "Add confidence ellipses",
                     value = TRUE),
 
-     sliderInput("pca_conf.ellipses",
+      sliderInput("pca_conf.ellipses",
                   "Confidence level",
                   min=0, max=1, value=0.5, step=0.05),
 
@@ -211,41 +219,41 @@ server <- shinyServer(function(input, output) {
                     "Add (0.5, 0.75, 0.9) conf. ellipses axes",
                     value = FALSE),
 
-     checkboxInput("pca_delaunay",
-                   "Add Delaunay mesh",
-                   FALSE),
+      checkboxInput("pca_delaunay",
+                    "Add Delaunay mesh",
+                    FALSE),
 
       checkboxInput("pca_chull",
                     "Add convex hulls",
                     FALSE),
 
-     checkboxInput("pca_chull.filled",
-                   "Add filled convex hulls",
+      checkboxInput("pca_chull.filled",
+                    "Add filled convex hulls",
                     FALSE),
 
-     sliderInput("pca_chull.filled.alpha",
+      sliderInput("pca_chull.filled.alpha",
                   "Filled convex hulls transparency",
-                 0.5, 1, 0.92, 0.01),
+                  0.5, 1, 0.92, 0.01),
 
-     checkboxInput("pca_density",
-                   "Add kde density",
-                   FALSE),
+      checkboxInput("pca_density",
+                    "Add kde density",
+                    FALSE),
 
-     sliderInput("pca_lev.n.kde2d",
-                 "Number of grid points",
+      sliderInput("pca_lev.n.kde2d",
+                  "Number of grid points",
                   10, 200, 10, 10),
 
-     sliderInput("pca_lev.density",
-                   "Number of density levels",
-                   1, 100, 10, 1),
+      sliderInput("pca_lev.density",
+                  "Number of density levels",
+                  1, 100, 10, 1),
 
-     checkboxInput("pca_contour",
-                   "Add contours",
-                   FALSE),
+      checkboxInput("pca_contour",
+                    "Add contours",
+                    FALSE),
 
-     sliderInput("pca_lev.contour",
-                   "Number of contour levels",
-                   1, 20, 5, 1),
+      sliderInput("pca_lev.contour",
+                  "Number of contour levels",
+                  1, 20, 5, 1),
 
       # morphospace
       h3("Morphospace"),
@@ -263,23 +271,23 @@ server <- shinyServer(function(input, output) {
                                  "full_axes" = "full_axes"),
                   selected = "full"),
 
-     #Cosmetics
+      #Cosmetics
       h3("Cosmetics"),
 
-     textInput("pca_title",
-               "Plot title",
-               "PCA",
-               "100%"),
+      textInput("pca_title",
+                "Plot title",
+                "PCA",
+                "100%"),
 
-     selectInput("pca_palette",
-                 label="Color palette",
-                 choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
-                 selected="col_qual"),
+      selectInput("pca_palette",
+                  label="Color palette",
+                  choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
+                  selected="col_qual"),
 
-     textInput("pca_bg",
-               "Background color",
-               "#FFFFFF",
-               "100%"),
+      textInput("pca_bg",
+                "Background color",
+                "#FFFFFF",
+                "100%"),
 
       sliderInput(inputId = "pca_plot_width",
                   label = "Plot width",
@@ -290,29 +298,29 @@ server <- shinyServer(function(input, output) {
                   label="zoom (<=1 to display all points)",
                   min=0.1, max=5, value=1, step=0.1),
 
-     checkboxInput("pca_grid",
-                   "Add grid",
-                   TRUE),
+      checkboxInput("pca_grid",
+                    "Add grid",
+                    TRUE),
 
-     numericInput("pca_nb.grids",
-                  "Number of grids",
-                  3, 0, 10, 1),
+      numericInput("pca_nb.grids",
+                   "Number of grids",
+                   3, 0, 10, 1),
 
-     checkboxInput("pca_rug",
-                   "Add rug",
-                   TRUE),
+      checkboxInput("pca_rug",
+                    "Add rug",
+                    TRUE),
 
-     checkboxInput("pca_eigen",
-                   "Add eigen screeplot",
-                   TRUE),
+      checkboxInput("pca_eigen",
+                    "Add eigen screeplot",
+                    TRUE),
 
-     checkboxInput("pca_box",
-                   "Add a box",
-                   TRUE)
+      checkboxInput("pca_box",
+                    "Add a box",
+                    TRUE)
     ))
 
 
-  # produces the PCA plot
+  # pca_plot -------------
   output$pca_plot <- renderPlot({
     if (is.null(input$fac2)) {
       fac <- input$fac1
@@ -355,6 +363,250 @@ server <- shinyServer(function(input, output) {
   },
   width=exprToFunction(input$pca_plot_width),
   height=exprToFunction(input$pca_plot_width))
+
+  # lda --------------
+  data_lda <- reactive({
+    LDA(data_pca(), input$lda_fac, retain=as.numeric(input$lda_retain))
+  })
+
+  # lda_ui ------------
+  output$lda_ui <- renderUI({
+    list(
+      selectInput(inputId = "lda_fac",
+                  label="Factor",
+                  choices=colnames(data_pca()$fac),
+                  selected=NULL,
+                  multiple=FALSE,
+                  selectize=FALSE),
+
+      textInput(inputId = "lda_retain",
+                "if <= 1, proportion of PCA variance; if >1 number of PCs",
+                value="0.99"),
+
+      numericInput(inputId = "lda_xax",
+                   label = "Axis1",
+                   value = 1, 1, ncol(data_pca()$x), 1),
+
+      numericInput(inputId = "lda_yax",
+                   label = "Axis2",
+                   value = 2, 1, ncol(data_pca()$x), 1),
+
+      # points
+      h3("Points"),
+      checkboxInput("lda_points",
+                    label = "Add points",
+                    value = TRUE),
+
+      sliderInput(inputId = "lda_cex",
+                  label = "Points cex",
+                  min=0.1, max=5, value=1, step=0.1),
+
+      checkboxInput(inputId = "lda_labelsgroups",
+                    label = "Label groups",
+                    value = TRUE),
+
+      selectInput(inputId = "lda_labelspoints",
+                  label="Label points using",
+                  choices=c(FALSE, colnames(data_pca()$fac)),
+                  selected=FALSE,
+                  multiple=FALSE,
+                  selectize=FALSE),
+
+      checkboxInput(inputId = "lda_abbreviate.labelspoints",
+                    label="Abbreviate points labels",
+                    value=FALSE),
+
+      # Groups
+      h3("Groups"),
+      checkboxInput(inputId = "lda_abbreviate.labelsgroups",
+                    label="Abbreviate groups labels",
+                    value=FALSE),
+
+      checkboxInput("lda_ellipses",
+                    label = "Add confidence ellipses",
+                    value = TRUE),
+
+      sliderInput("lda_conf.ellipses",
+                  "Confidence level",
+                  min=0, max=1, value=0.5, step=0.05),
+
+      checkboxInput("lda_ellipsesax",
+                    "Add (0.5, 0.75, 0.9) conf. ellipses axes",
+                    value = FALSE),
+
+      checkboxInput("lda_delaunay",
+                    "Add Delaunay mesh",
+                    FALSE),
+
+      checkboxInput("lda_chull",
+                    "Add convex hulls",
+                    FALSE),
+
+      checkboxInput("lda_chull.filled",
+                    "Add filled convex hulls",
+                    FALSE),
+
+      #Cosmetics
+      h3("Cosmetics"),
+
+      textInput("lda_title",
+                "Plot title",
+                "PCA",
+                "100%"),
+
+      selectInput("lda_palette",
+                  label="Color palette",
+                  choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
+                  selected="col_qual"),
+
+      textInput("lda_bg",
+                "Background color",
+                "#FFFFFF",
+                "100%"),
+
+      sliderInput(inputId = "lda_plot_width",
+                  label = "Plot width",
+                  min=200, max=1600, value=600, step = 100),
+
+      # plot zoom
+      sliderInput(inputId="lda_zoom",
+                  label="zoom (<=1 to display all points)",
+                  min=0.1, max=5, value=1, step=0.1),
+
+      checkboxInput("lda_grid",
+                    "Add grid",
+                    TRUE),
+
+      numericInput("lda_nb.grids",
+                   "Number of grids",
+                   3, 0, 10, 1),
+
+      checkboxInput("lda_rug",
+                    "Add rug",
+                    TRUE),
+
+      checkboxInput("lda_eigen",
+                    "Add eigen screeplot",
+                    TRUE),
+
+      checkboxInput("lda_box",
+                    "Add a box",
+                    TRUE)
+    )
+  })
+  # lda_plot -------
+  output$lda_plot <- renderPlot({
+    plot(data_lda(),
+         fac = input$lda_fac,
+         zoom=input$lda_zoom, xax=input$lda_xax, yax=input$lda_yax,
+         points=input$lda_points, cex=input$lda_cex,
+         palette=palette_deliver(input$lda_palette),
+
+
+         labelspoints=ifelse(input$lda_labelspoints==FALSE, FALSE, input$lda_labelspoints),
+         abbreviate.labelspoints=input$lda_abbreviate.labelspoints,
+         labelsgroups=input$lda_labelsgroups,
+
+         abbreviate.labelsgroups=input$lda_abbreviate.labelsgroups,
+         ellipses=input$lda_ellipses,
+         conf.ellipses=input$lda_conf.ellipses,
+
+         ellipsesax=input$lda_ellipsesax,
+
+         chull=input$lda_chull,
+         chull.filled=input$lda_chull.filled,
+
+         delaunay=input$lda_delaunay,
+
+         cex.labelspoints = 1.2,
+
+         title=input$lda_title, grid=input$lda_grid, nb.grids=input$lda_nb.grids,
+         rug=input$lda_rug, eigen=input$lda_eigen, box=input$lda_box, bg=input$lda_bg)
+  },
+  width=exprToFunction(input$lda_plot_width),
+  height=exprToFunction(input$lda_plot_width))
+
+
+  # lda_plot_CV ---------
+  output$lda_plot_CV <- renderPlot({
+    plot_CV(data_lda())
+  },
+  width=exprToFunction(input$lda_plot_width),
+  height=exprToFunction(input$lda_plot_width))
+
+
+  # clust_ui --------
+  output$clust_ui <- renderUI({
+    list(
+      selectInput(inputId = "clust_fac",
+                  label="Factor",
+                  choices=colnames(data_pca()$fac),
+                  selected=NULL,
+                  multiple=FALSE,
+                  selectize=FALSE),
+
+      selectInput(inputId = "clust_type",
+                  label="Plot type",
+                  choices=c("cladogram", "phylogram", "radial", "unrooted", "fan"),
+                  selected="fan",
+                  multiple=FALSE,
+                  selectize=FALSE),
+
+      selectInput("clust_dist_method",
+                  "dist_method",
+                  choices=c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+                  selected="euclidean",
+                  multiple = FALSE,
+                  selectize = FALSE),
+
+      selectInput("clust_hclust_method",
+                  "hclust_method",
+                  choices=c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                  selected="complete",
+                  multiple = FALSE,
+                  selectize = FALSE),
+
+      textInput(inputId = "clust_retain",
+                "if <= 1, proportion of PCA variance; if >1 number of PCs",
+                value="0.99"),
+
+      selectInput(inputId = "clust_tip_labels",
+                  label="tip labels",
+                  choices=colnames(data_pca()$fac),
+                  selected=colnames(data_pca()$fac),
+                  multiple=FALSE,
+                  selectize=FALSE),
+
+      selectInput("clust_palette",
+                  label="Color palette",
+                  choices=list("col_spring", "col_summer", "col_autumn", "col_qual", "col_solarized"),
+                  selected="col_qual")
+    )
+  })
+
+  # clust_plot -------------
+  output$clust_plot <- renderPlot({
+    CLUST(data_pca(),
+          fac=input$clust_fac,
+          type=input$clust_type,
+          dist_method=input$clust_dist_method,
+          hclust_method=input$clust_hclust_method,
+          retain=as.numeric(input$clust_retain),
+          #tip_labels=input$clust_tip_labels,
+          palette=palette_deliver(input$clust_palette))
+  })
+
+  # kmeans ------
+
+  output$kmeans_ui <- renderUI({
+    numericInput("kmeans_centers",
+                 "Number of centers",
+                 3, 1, 20, 1)
+    })
+
+  output$kmeans_plot <- renderPlot({
+    KMEANS(data_pca(), centers=input$kmeans_centers)
+  })
 
 })
 
