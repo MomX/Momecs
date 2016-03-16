@@ -5,16 +5,22 @@
 ![screenshot](https://github.com/vbonhomme/Momecs/blob/master/screenshot.jpg)
 ### In brief
 
-* Development version for a [shiny](http://shiny.rstudio.com/) explorer on top of [Momocs](https://github.com/vbonhomme/Momocs/).
-* It will soon be turned into either a package or a method in Momocs.
+Development version for a [shiny](http://shiny.rstudio.com/) explorer on top of [Momocs](https://github.com/vbonhomme/Momocs/).
+
 
 ### Try it
-1. Clone the repos
-1. Launch the .Rproj file
-1. Source Momecs.R
+
+```
+source(https://raw.githubusercontent.com/vbonhomme/Momecs/master/Momecs_function.R)
+Momecs()
+```
+
+You can pass a `Coe` object to `Momecs()`; otherwise a demo dataset is created.
+
+Besides `Momocs`, you will need `shiny` and `shinydashboard` to make it work. You can install them with `install.packages()`.
+
 
 Any comments, requests, etc. are welcome.
-
 
 
 
