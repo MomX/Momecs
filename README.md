@@ -11,7 +11,7 @@ Development version for a [shiny](http://shiny.rstudio.com/) explorer on top of 
 ### Try it
 
 ```
-source(https://raw.githubusercontent.com/vbonhomme/Momecs/master/Momecs_function.R)
+source("https://raw.githubusercontent.com/vbonhomme/Momecs/master/Momecs_function.R")
 Momecs()
 ```
 
