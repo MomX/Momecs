@@ -169,7 +169,7 @@ Momecs <- function(data){
                     choices =  levels(data_full()$fac[, i]),
                     selected = levels(data_full()$fac[, i]),
                     selectize = FALSE,
-                    size = nlevels(data_full()$fac[, i]),
+                    size = 12,
                     multiple = TRUE)})
     )
 
