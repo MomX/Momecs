@@ -23,7 +23,7 @@ Momecs <- function(data){
       # wings     = wings %>% fgProcrustes()
     ))
   } else {
-    .check(is.Coe(data),
+    Momocs:::.check(is.Coe(data),
            "data must be a Coe object")
     data <- list(your_Coe=data)
   }
