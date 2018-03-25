@@ -4,8 +4,9 @@ rm(list=ls())
 library(shiny)
 library(shinydashboard)
 library(Momocs)
-devtools::load_all("~/Research/Momocs/")
+# devtools::load_all("~/Research/Momocs/")
 
+is.fac <- Momocs::is_fac
 bp <- PCA(efourier(bot))
 # load domestic functions
 source("local.R")
