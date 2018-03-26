@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Morphometric (or multivariate) exploration controlled by shiny — Momecs • Momecs</title>
+<title>Toy dataset from Momocs — toy • Momecs</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -83,43 +83,45 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Morphometric (or multivariate) exploration controlled by shiny</h1>
+    <h1>Toy dataset from Momocs</h1>
     </div>
 
     
-    <p>Morphometric (or multivariate) exploration controlled by shiny</p>
+    <p>Toy dataset from Momocs</p>
     
 
-    <pre class="usage"><span class='fu'>Momecs</span>(<span class='no'>x</span>, <span class='kw'>launch.brower</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+        
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>From Momocs:</p><ul>
+<li><p>bot</p></li>
+<li><p>chaff</p></li>
+<li><p>charring</p></li>
+<li><p>flower</p></li>
+<li><p>hearts</p></li>
+<li><p>molars</p></li>
+<li><p>mosquito</p></li>
+<li><p>oak</p></li>
+<li><p>olea</p></li>
+<li><p>shapes</p></li>
+<li><p>trilo</p></li>
+<li><p>wings</p></li>
+</ul>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>x</th>
-      <td><p>a Coe or PCA object. If missing, <a href='data_toy.html'>toy</a> datasets are used</p></td>
-    </tr>
-    <tr>
-      <th>launch.brower</th>
-      <td><p><code>logical</code> to feed <a href='http://www.rdocumentation.org/packages/shiny/topics/runApp'>shiny::runApp</a>, whether to
-launch the app within your default browser (default: <code>FALSE</code>)</p></td>
-    </tr>
-    </table>
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+
+    <p>Momocs</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='fu'>Momecs</span>()
-<span class='no'>hearts</span> <span class='kw'>%&gt;%</span> <span class='fu'>efourier</span>(<span class='fl'>3</span>)  <span class='kw'>%&gt;%</span> <span class='fu'>Momecs</span>()
-<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-            
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+      
+      <li><a href="#format">Format</a></li>
+
+      <li><a href="#source">Source</a></li>
+          </ul>
 
   </div>
 </div>
