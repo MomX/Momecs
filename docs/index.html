@@ -38,6 +38,9 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li>
+  <a href="news/index.html">News</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -67,34 +70,33 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#momecs" class="anchor"></a><img src="https://raw.githubusercontent.com/googlei18n/noto-emoji/master/svg/emoji_u1f37c.svg?sanitize=true" width="40"> Momecs</h1></div>
 
-<p>The goal of Momecs is to …</p>
+<p>The goal of Momecs is, for multivariate data, and particularly morphometric data, to easily subset and perform PCA, LDA, SVM, KMEANS, HCLUST and friends.</p>
+<p>Sometimes reproducibility profits some buttons and clicks.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the released version of Momecs from <a href="https://CRAN.R-project.org">CRAN</a> with:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"Momecs"</span>)</code></pre></div>
-<p>And the development version from <a href="https://github.com/">GitHub</a> with:</p>
+<!--
+You can install the released version of Momecs from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("Momecs")
+```
+-->
+<p>You can try the development version from <a href="https://github.com/">GitHub</a> with:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages("devtools")</span>
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"vbonhomme/Momecs"</span>)</code></pre></div>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## basic example code</code></pre></div>
-<p>What is special about using <code>README.Rmd</code> instead of just <code>README.md</code>? You can include R chunks like so:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(cars)
-<span class="co">#&gt;      speed           dist       </span>
-<span class="co">#&gt;  Min.   : 4.0   Min.   :  2.00  </span>
-<span class="co">#&gt;  1st Qu.:12.0   1st Qu.: 26.00  </span>
-<span class="co">#&gt;  Median :15.0   Median : 36.00  </span>
-<span class="co">#&gt;  Mean   :15.4   Mean   : 42.98  </span>
-<span class="co">#&gt;  3rd Qu.:19.0   3rd Qu.: 56.00  </span>
-<span class="co">#&gt;  Max.   :25.0   Max.   :120.00</span></code></pre></div>
-<p>You’ll still need to render <code>README.Rmd</code> regularly, to keep <code>README.md</code> up-to-date.</p>
-<p>You can also embed plots, for example:</p>
-<p><img src="reference/figures/README-pressure-1.png" width="100%"></p>
-<p>In that case, don’t forget to commit and push the resulting figure files, so they display on GitHub!</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Momecs)
+
+<span class="co"># On toy datasets</span>
+<span class="kw"><a href="reference/Momecs.html">Momecs</a></span>()
+
+<span class="co"># On a Coe object</span>
+olea <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">opoly</span>(<span class="dv">5</span>, <span class="dt">nb.pts=</span><span class="dv">60</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="reference/Momecs.html">Momecs</a></span>()</code></pre></div>
+<p>More to come.</p>
 </div>
 </div>
 </div>
