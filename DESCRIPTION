@@ -11,7 +11,8 @@ LazyData: true
 ByteCompile: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
-Imports: R (>= 3.4.4),
+Depends: R (>= 3.4.4)
+Imports: 
     Momocs,
     magrittr,
     shiny,
