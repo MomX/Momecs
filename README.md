@@ -1,8 +1,7 @@
-![experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-Momecs
-======
+<img src="https://raw.githubusercontent.com/googlei18n/noto-emoji/master/svg/emoji_u1f37c.svg?sanitize=true" width="40"> Momecs
+===============================================================================================================================
 
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) [![Travis build status](https://travis-ci.org/vbonhomme/Momecs.svg?branch=master)](https://travis-ci.org/vbonhomme/Momecs) [![CRAN status](https://www.r-pkg.org/badges/version/Momecs)](https://cran.r-project.org/package=Momecs)
 
