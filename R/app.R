@@ -66,7 +66,7 @@ Momecs <- function(x=toy, launch.brower=FALSE) {
 
     # filter_x ----
     output$filter_x <- renderUI({
-      if (length(x)>1){
+      if (!is_Coe(x)){
         fluidRow(
           h4("Pick one dataset"),
           # data picking
@@ -84,10 +84,10 @@ Momecs <- function(x=toy, launch.brower=FALSE) {
     # prepare data_full and finish to handle toy
     data_full <- reactive(
       # case: no dataset provided
-      if (any("toy" %in% class(x)))
+      if (!is_Coe(x))
         x[[input$data_choice]]
       else
-        x
+        x[[]]
     )
 
     output$data_full <- renderPrint(data_full())
@@ -122,7 +122,7 @@ data_filtered <- reactive({
                 function(i) input[[paste0('fac_', i)]])
   names(res) <- colnames(data_full()$fac)
   # return(res)
-  .filter_with_list(data_full(), res)
+  filter_with_list(data_full(), res)
 })
 
 output$data_filtered <- renderPrint(data_filtered())
@@ -305,3 +305,5 @@ output$pca_plot <- renderUI({
 
 # Momecs()
 # hearts %>% efourier(3)  %>% Momecs()
+# olea %>% chop(~view) %>% lapply(opoly, 5, nb.pts=50) -> a
+# Momecs(a)
