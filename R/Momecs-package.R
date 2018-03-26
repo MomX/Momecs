@@ -30,9 +30,6 @@
 NULL
 
 # Namespace --------
-
-
-
 #' @importFrom magrittr %>%
 #' @export
 magrittr::`%>%`
@@ -50,7 +47,10 @@ magrittr::`%$%`
 magrittr::`%T>%`
 
 
-# welcome message
+# Avoid no visible binding...
+globalVariables("toy")
+
+# Welcome message
 .onAttach <- function(lib, pkg) {
   packageStartupMessage('This is Momecs ',
                         utils::packageDescription('Momecs', field='Version'),

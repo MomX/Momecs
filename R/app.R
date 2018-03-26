@@ -1,6 +1,6 @@
 #' Morphometric (or multivariate) exploration controlled by shiny
 #'
-#' @param x a Coe or PCA object
+#' @param x a Coe or PCA object. If missing, [toy] datasets are used
 #' @param launch.brower `logical` to feed [shiny::runApp], whether to
 #' launch the app within your default browser (default: `FALSE`)
 #' @examples
@@ -9,7 +9,11 @@
 #' hearts %>% efourier(3)  %>% Momecs()
 #' }
 #' @export
-Momecs <- function(x=toy, launch.brower=FALSE) {
+Momecs <- function(x, launch.brower=FALSE) {
+ # __before__ ----
+  # toy dataset to start playing/developing
+  if (missing(x))
+    x <- toy
 
   # __ui__ ---------
   ui <- dashboardPage(

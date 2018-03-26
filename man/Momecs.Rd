@@ -4,10 +4,10 @@
 \alias{Momecs}
 \title{Morphometric (or multivariate) exploration controlled by shiny}
 \usage{
-Momecs(x = toy, launch.brower = FALSE)
+Momecs(x, launch.brower = FALSE)
 }
 \arguments{
-\item{x}{a Coe or PCA object}
+\item{x}{a Coe or PCA object. If missing, \link{toy} datasets are used}
 
 \item{launch.brower}{\code{logical} to feed \link[shiny:runApp]{shiny::runApp}, whether to
 launch the app within your default browser (default: \code{FALSE})}
