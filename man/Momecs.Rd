@@ -4,7 +4,7 @@
 \alias{Momecs}
 \title{Morphometric (or multivariate) exploration controlled by shiny}
 \usage{
-Momecs(x, launch.brower = FALSE)
+Momecs(x = toy, launch.brower = FALSE)
 }
 \arguments{
 \item{x}{a Coe or PCA object}

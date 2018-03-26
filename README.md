@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<img src="https://raw.githubusercontent.com/googlei18n/noto-emoji/master/svg/emoji_u1f37c.svg?sanitize=true" width="30px"> Momecs
----------------------------------------------------------------------------------------------------------------------------------
+Momecs <img src="https://noto-website-2.storage.googleapis.com/emoji/emoji_u1f43b.png" width="30px">
+----------------------------------------------------------------------------------------------------
 
 *Part of [MomX](https://momx.github.io/MomX/)*
 
