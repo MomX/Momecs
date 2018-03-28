@@ -1,5 +1,5 @@
 Package: Momecs
-Version: 0.0.0.9000
+Version: 0.1.0
 Title: Morphometric (or multivariate) explorer controlled by shiny
 Description: For multivariate data, and particularly morphometric data, 
     easily subset and perform PCA, LDA, SVM, KMEANS, HCLUST and friends. 
