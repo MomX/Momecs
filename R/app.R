@@ -10,10 +10,12 @@
 #' }
 #' @export
 Momecs <- function(x, launch.brower=FALSE) {
- # __before__ ----
+  require(shiny)
+  require(shinydashboard)
+  # __before__ ----
   # toy dataset to start playing/developing
   if (missing(x))
-    x <- toy
+    x <- Momecs::toy
 
   # __ui__ ---------
   ui <- dashboardPage(
@@ -26,8 +28,9 @@ Momecs <- function(x, launch.brower=FALSE) {
       sidebarMenu(
         menuItem("Data",   tabName = "data",   icon = icon("database")),
         # uiOutput("filter_toy"),
-        menuItem("PCA",    tabName = "pca",    icon = icon("compress"))#,
-        #menuItem("LDA",    tabName = "lda",    icon = icon("object-group")),
+        uiOutput("filter_ui"),
+        menuItem("PCA",    tabName = "pca",    icon = icon("compress")),
+        menuItem("LDA",    tabName = "lda",    icon = icon("object-group"))#,
         #menuItem("CLUST",  tabName = "clust",  icon = icon("tree")),
         #menuItem("KMEANS", tabName = "kmeans", icon = icon("scissors")),
         #menuItem("MAP",    tabName = "map",    icon = icon("map-marker")),
@@ -46,8 +49,8 @@ Momecs <- function(x, launch.brower=FALSE) {
                          verbatimTextOutput("data_full")),
                   column(2,
                          h4("Include"),
-                         textOutput("filter_prop"),
-                         uiOutput("filter_ui")),
+                         textOutput("filter_prop")),
+                  # uiOutput("filter_ui")),
                   column(5,
                          h4("Filtered"),
                          verbatimTextOutput("data_filtered"))
@@ -58,7 +61,15 @@ Momecs <- function(x, launch.brower=FALSE) {
         tabItem(tabName = "pca",
                 uiOutput("pca_ui"),
                 uiOutput("pca_plot")
-        )
+        ),
+
+        #lda panel ---------
+        tabItem(tabName = "lda",
+                 uiOutput("lda_ui"),
+                uiOutput("lda_plot"),
+                verbatimTextOutput("lda_print"))
+                # verbatimTextOutput("lda_print2"))
+        # )
       )
     ),
     skin="black"
@@ -110,195 +121,378 @@ Momecs <- function(x, launch.brower=FALSE) {
         selectInput(inputId = paste0('fac_', i),
                     label = i,
                     choices =  levels_i,
-        selected = levels_i,
-        selectize = FALSE,
-        size = size,
-        multiple = TRUE)
-        })
+                    selected = levels_i,
+                    selectize = FALSE,
+                    size = size,
+                    multiple = TRUE)
+      })
     )
 
+    data_filtered <- reactive({
+      if (!Momocs::is_fac(data_full()))
+        return(data_full())
+      res <- lapply(colnames(data_full()$fac),
+                    function(i) input[[paste0('fac_', i)]])
+      names(res) <- colnames(data_full()$fac)
+      # return(res)
+      filter_with_list(data_full(), res)
+    })
 
+    output$data_filtered <- renderPrint(data_filtered())
 
-data_filtered <- reactive({
-  if (!Momocs::is_fac(data_full()))
-    return(data_full())
-  res <- lapply(colnames(data_full()$fac),
-                function(i) input[[paste0('fac_', i)]])
-  names(res) <- colnames(data_full()$fac)
-  # return(res)
-  filter_with_list(data_full(), res)
-})
+    # __PCA__ --------
+    # pca_calculation ------------
+    data_pca <- reactive({
+      Momocs::PCA(data_filtered())
+    })
 
-output$data_filtered <- renderPrint(data_filtered())
+    # pca_ui -----------
+    output$pca_ui <- renderUI(
+      fluidRow(
+        # appearance column
+        column(4,
+               h4("Appearance"),
+               # axes choice
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "pca_axis1",
+                                label = "PCx",
+                                value = 1, 1, ncol(data_pca()$x), 1)
+               ),
 
-# __PCA__ --------
-# pca_calculation ------------
-data_pca <- reactive({
-  Momocs::PCA(data_filtered())
-})
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "pca_axis2",
+                                label = "PCy",
+                                value = 2, 1, ncol(data_pca()$x), 1)
+               ),
 
-# pca_ui -----------
-output$pca_ui <- renderUI(
-  fluidRow(
-    # appearance column
-    column(4,
-           h4("Appearance"),
-           # axes choice
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               numericInput(inputId = "pca_axis1",
-                            label = "PCx",
-                            value = 1, 1, ncol(data_pca()$x), 1)
-           ),
+               br(),
+               # points
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("pca_points",
+                                 label = "Points",
+                                 value = TRUE)
+               ),
 
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               numericInput(inputId = "pca_axis2",
-                            label = "PCy",
-                            value = 2, 1, ncol(data_pca()$x), 1)
-           ),
+               # eigen
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("pca_eigen",
+                                 label="Scree plot",
+                                 value=TRUE)
+               ),
 
-           br(),
-           # points
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               checkboxInput("pca_points",
-                             label = "Points",
-                             value = TRUE)
-           ),
+               br(),
+               # plot dims
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "pca_plot_width",
+                                label = "Plot width",
+                                min=200, max=2400, value=800, step = 100)
+               ),
 
-           # eigen
-           div(style="display: inline-block;vertical-align:top; width: 120px;",
-               checkboxInput("pca_eigen",
-                             label="Scree plot",
-                             value=TRUE)
-           ),
+               # plot zoom
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId="pca_zoom",
+                                label="Zoom",
+                                min=0.1, max=3, value=0.9, step=0.1)
+               )
+        ),
 
-           br(),
-           # plot dims
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               numericInput(inputId = "pca_plot_width",
-                            label = "Plot width",
-                            min=200, max=2400, value=800, step = 100)
-           ),
+        # groups column
+        column(4,
+               h4("Groups"),
+               # each column in fac becomes a selectInput
+               # fac choice (1)
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "pca_fac1",
+                               label="1st cov",
+                               choices=colnames(data_pca()$fac),
+                               selected=colnames(data_pca()$fac)[1],
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
+               # fac choice (2)
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "pca_fac2",
+                               label="2nd cov",
+                               choices=c("NULL", colnames(data_pca()$fac)),
+                               selected="NULL",
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
 
-           # plot zoom
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               numericInput(inputId="pca_zoom",
-                            label="Zoom",
-                            min=0.1, max=3, value=0.9, step=0.1)
-           )
-    ),
+               br(),
+               # convex hulls
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("pca_chull",
+                                 "Convex hulls",
+                                 TRUE)
+               ),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("pca_chullfilled",
+                                 "Filled",
+                                 FALSE)
+               ),
 
-    # groups column
-    column(4,
-           h4("Groups"),
-           # each column in fac becomes a selectInput
-           # fac choice (1)
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               selectInput(inputId = "pca_fac1",
-                           label="1st cov",
-                           choices=colnames(data_pca()$fac),
-                           selected=colnames(data_pca()$fac)[1],
-                           multiple=FALSE,
-                           selectize=FALSE)
-           ),
-           # fac choice (2)
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               selectInput(inputId = "pca_fac2",
-                           label="2nd cov",
-                           choices=c("NULL", colnames(data_pca()$fac)),
-                           selected="NULL",
-                           multiple=FALSE,
-                           selectize=FALSE)
-           ),
+               br(),
+               # legend and labels
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("pca_legend",
+                                 label="Legend",
+                                 value=TRUE)
+               ),
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("pca_labelgroups",
+                                 label="Label groups",
+                                 value=FALSE)
+               )
+        ),
 
-           br(),
-           # convex hulls
-           div(style="display: inline-block;vertical-align:top; width: 120px;",
-               checkboxInput("pca_chull",
-                             "Convex hulls",
-                             TRUE)
-           ),
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               checkboxInput("pca_chullfilled",
-                             "Filled",
-                             FALSE)
-           ),
-
-           br(),
-           # legend and labels
-           div(style="display: inline-block;vertical-align:top; width: 80px;",
-               checkboxInput("pca_legend",
-                             label="Legend",
-                             value=TRUE)
-           ),
-           div(style="display: inline-block;vertical-align:top; width: 120px;",
-               checkboxInput("pca_labelgroups",
-                             label="Label groups",
-                             value=FALSE)
-           )
-    ),
-
-    # morphospace column
-    column(4,
-           h4("Morphospace"),
-           # morphospace
-           selectInput("pca_morphospace_position",
-                       label = NULL,
-                       choices = list("none" = "none",
-                                      "full" = "full",
-                                      "range" = "range",
-                                      "circle" = "circle",
-                                      "xy" = "xy",
-                                      "range_axes" = "range_axes",
-                                      "full_axes" = "full_axes"),
-                       selected = "range"),
-           # Cosmetics
-           h4("Cosmetics"),
-           # title
-           textInput("pca_title",
-                     label=NULL,
-                     value="",
-                     placeholder="Type a title here")
+        # morphospace column
+        column(4,
+               h4("Morphospace"),
+               # morphospace
+               selectInput("pca_morphospace_position",
+                           label = NULL,
+                           choices = list("none" = "none",
+                                          "full" = "full",
+                                          "range" = "range",
+                                          "circle" = "circle",
+                                          "xy" = "xy",
+                                          "range_axes" = "range_axes",
+                                          "full_axes" = "full_axes"),
+                           selected = "range"),
+               # Cosmetics
+               h4("Cosmetics"),
+               # title
+               textInput("pca_title",
+                         label=NULL,
+                         value="",
+                         placeholder="Type a title here")
+        )
+      )
     )
-  )
-)
 
-# pca_plot -----
-output$pca_plot0 <- renderPlot({
-  # masticate f for plot_PCA
-  if (is.null(input$pca_fac2)) {
-    f <- stats::as.formula(paste0("~", input$pca_fac1))
-  } else {
-    f <- stats::as.formula(paste("~", input$pca_fac1, "+", input$pca_fac2))
-  }
+    # pca_plot -----
+    output$pca_plot0 <- renderPlot({
+      # masticate f for plot_PCA
+      if (is.null(input$pca_fac2)) {
+        f <- stats::as.formula(paste0("~", input$pca_fac1))
+      } else {
+        f <- stats::as.formula(paste("~", input$pca_fac1, "+", input$pca_fac2))
+      }
 
-  pca_morphospace <- ifelse(input$pca_morphospace_position=="none", FALSE, TRUE)
-  Momocs::plot_PCA(data_pca(),
-                   f = f,
+      pca_morphospace <- ifelse(input$pca_morphospace_position=="none", FALSE, TRUE)
+      Momocs::plot_PCA(data_pca(),
+                       f = f,
 
-                   axes=c(input$pca_axis1, input$pca_axis2),
-                   zoom=input$pca_zoom,
-                   points=input$pca_points,
+                       axes=c(input$pca_axis1, input$pca_axis2),
+                       zoom=input$pca_zoom,
+                       points=input$pca_points,
 
-                   labelgroups=input$pca_labelgroups,
-                   legend=input$pca_legend,
+                       labelgroups=input$pca_labelgroups,
+                       legend=input$pca_legend,
 
-                   # palette=palette_deliver(input$pca_palette),
+                       # palette=palette_deliver(input$pca_palette),
 
-                   morphospace = pca_morphospace,
-                   morphospace_position =  input$pca_morphospace_position,
+                       morphospace = pca_morphospace,
+                       morphospace_position =  input$pca_morphospace_position,
 
-                   chull=input$pca_chull,
-                   chullfilled=input$pca_chullfilled,
+                       chull=input$pca_chull,
+                       chullfilled=input$pca_chullfilled,
 
-                   eigen=input$pca_eigen,
-                   title=input$pca_title)
-},
-width=exprToFunction(input$pca_plot_width),
-height=exprToFunction(input$pca_plot_width))
+                       eigen=input$pca_eigen,
+                       title=input$pca_title)
+    },
+    width=exprToFunction(input$pca_plot_width),
+    height=exprToFunction(input$pca_plot_width))
 
-output$pca_plot <- renderUI({
-  plotOutput("pca_plot0", height = input$pca_plot_width)
-})
+    output$pca_plot <- renderUI({
+      plotOutput("pca_plot0", height = input$pca_plot_width, width = input$pca_plot_width)
+    })
+
+    # __LDA__ --------
+
+    # lda_calculation ------------
+    data_lda <- reactive({
+      # masticate f for plot_LDA
+      # if (is.null(input$lda_fac2)) {
+        # f <- stats::as.formula(paste0("~", input$lda_fac1))
+      # }
+
+      if (is.null(input$lda_fac2) | input$lda_fac2=="NULL") {
+        f <- stats::as.formula(paste0("~", input$lda_fac1))
+      } else {
+        f <- stats::as.formula(paste("~", input$lda_fac1, "+", input$lda_fac2))
+      }
+# list(input$lda_fac1, input$lda_fac2, f)
+      data_filtered() %>% Momocs::LDA(f)
+    })
+
+    output$lda_print <- renderPrint(data_lda())
+    # output$lda_print2 <- renderPrint(data_lda() %>% plot_LDA %>% str)
+    # lda_ui -----------
+    nLDs <- reactive({
+      if (is.null(data_lda()))
+        return(2)
+      else
+        ncol(data_lda()$LDs)
+    })
+    output$lda_ui <- renderUI(
+      fluidRow(
+        # appearance column
+        column(4,
+               h4("Appearance"),
+               # axes choice
+
+
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "lda_axis1",
+                                label = "LDx",
+                                value = 1, 1, 8, 1)
+               ),
+
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "lda_axis2",
+                                label = "LDy",
+                                value = 2, 1, 8, 1)
+               ),
+
+               br(),
+               # points
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("lda_points",
+                                 label = "Points",
+                                 value = TRUE)
+               ),
+
+               # eigen
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("lda_eigen",
+                                 label="Scree plot",
+                                 value=TRUE)
+               ),
+
+               br(),
+               # plot dims
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "lda_plot_width",
+                                label = "Plot width",
+                                min=200, max=2400, value=800, step = 100)
+               ),
+
+               # plot zoom
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId="lda_zoom",
+                                label="Zoom",
+                                min=0.1, max=3, value=0.9, step=0.1)
+               )
+        ),
+
+        # groups column
+        column(4,
+               h4("Groups"),
+               # each column in fac becomes a selectInput
+               # fac choice (1)
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "lda_fac1",
+                               label="1st cov",
+                               choices=colnames(data_filtered()$fac),
+                               selected=NULL,
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
+               # fac choice (2)
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "lda_fac2",
+                               label="2nd cov",
+                               choices=c("NULL", colnames(data_filtered()$fac)),
+                               selected=NULL,
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
+
+               br(),
+               # convex hulls
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("lda_chull",
+                                 "Convex hulls",
+                                 TRUE)
+               ),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("lda_chullfilled",
+                                 "Filled",
+                                 FALSE)
+               ),
+
+               br(),
+               # legend and labels
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   checkboxInput("lda_legend",
+                                 label="Legend",
+                                 value=TRUE)
+               ),
+               div(style="display: inline-block;vertical-align:top; width: 120px;",
+                   checkboxInput("lda_labelgroups",
+                                 label="Label groups",
+                                 value=FALSE)
+               )
+        ),
+
+        # morphospace column
+        column(4,
+               h4("Morphospace"),
+               # morphospace
+               selectInput("lda_morphospace_position",
+                           label = NULL,
+                           choices = list("none" = "none",
+                                          "full" = "full",
+                                          "range" = "range",
+                                          "circle" = "circle",
+                                          "xy" = "xy",
+                                          "range_axes" = "range_axes",
+                                          "full_axes" = "full_axes"),
+                           selected = "range"),
+               # Cosmetics
+               h4("Cosmetics"),
+               # title
+               textInput("lda_title",
+                         label=NULL,
+                         value="",
+                         placeholder="Type a title here")
+        )
+      )
+    )
+
+    # lda_plot -----
+    output$lda_plot0 <- renderPlot({
+
+      lda_morphospace <- ifelse(input$lda_morphospace_position=="none", FALSE, TRUE)
+      Momocs::plot_LDA(data_lda(),
+
+      axes=c(input$lda_axis1, input$lda_axis2),
+      # axes=1:2,
+      zoom=input$lda_zoom,
+      points=input$lda_points,
+
+      labelgroups=input$lda_labelgroups,
+      legend=input$lda_legend,
+
+      # palette=palette_deliver(input$lda_palette),
+
+      morphospace = lda_morphospace,
+      morphospace_position =  input$lda_morphospace_position,
+
+      chull=input$lda_chull,
+      chullfilled=input$lda_chullfilled,
+
+      eigen=input$lda_eigen,
+      title=input$lda_title)
+    },
+    width=exprToFunction(input$lda_plot_width),
+    height=exprToFunction(input$lda_plot_width))
+
+    output$lda_plot <- renderUI({
+      plotOutput("lda_plot0", height = input$lda_plot_width, width = input$lda_plot_width)
+    })
 
   } # server end
 

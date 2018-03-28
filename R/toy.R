@@ -2,15 +2,15 @@
 # library(Momocs)
 #
 # toy <- list(
-#   bot       = Momocs::bot %>% Momocs::efourier(5),
+#   bot       = bot %>% efourier(5),
 #   chaff     = chaff %>% fgProcrustes(),
-#   charring  = charring %>% efourier(5),
+#   charring  = charring %>% coo_bookstein %>% coo_slide(ldk=1) %>% chop(~view) %>% efourier(8, norm=FALSE) %>% combine,
 #   flower    = Momocs::flower,
-#   hearts    = hearts %>% fgProcrustes() %>% efourier,
-#   molars    = molars %>% fgProcrustes(),
-#   mosquito  = mosquito %>% fgProcrustes(),
+#   hearts    = hearts %>% fgProcrustes() %>% coo_slide(ldk=2) %>% efourier(6, norm=FALSE),
+#   molars    = molars %>% fgProcrustes() %>% coo_slide(ldk=1) %>% efourier(8, norm=FALSE),
+#   mosquito  = mosquito %>% coo_slidedirection("right") %>% efourier(6, norm=FALSE),
 #   oak       = oak %>% fgProcrustes(),
-#   olea      = Momocs::olea %>% Momocs::opoly(5, nb.pts=60),
+#   olea      = olea %>% filter(var != "Cypre") %>% chop(~view) %>% opoly(6) %>% combine,
 #   shapes    = shapes %>% efourier(5),
 #   trilo     = trilo %>% efourier(5),
 #   wings     = wings %>% fgProcrustes()
