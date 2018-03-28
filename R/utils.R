@@ -7,7 +7,7 @@ filter_with_list <- function(x, l){
     apply(1, all)
   #return(keep)
   # return(keep)
- Momocs:::subsetize(x, keep)
+ Momocs::subsetize(x, keep)
 }
 
 # cosmetics. because selectInput accepts characters only, not functions

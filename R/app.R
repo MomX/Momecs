@@ -10,8 +10,8 @@
 #' }
 #' @export
 Momecs <- function(x, launch.brower=FALSE) {
-  require(shiny)
-  require(shinydashboard)
+  requireNamespace("shiny")
+  requireNamespace("shinydashboard")
   # __before__ ----
   # toy dataset to start playing/developing
   if (missing(x))
