@@ -7,7 +7,8 @@
 #' Momecs()
 #'
 #' # passing a Coe
-#' hearts %>% efourier(3) %>% Momecs()
+#' h <- hearts %>% efourier(3)
+#' Momecs(h)
 #' }
 #' @export
 Momecs <- function(x) {
@@ -32,8 +33,8 @@ Momecs <- function(x) {
         # uiOutput("filter_toy"),
         uiOutput("filter_ui"),
         menuItem("PCA",    tabName = "pca",    icon = icon("compress")),
-        menuItem("LDA",    tabName = "lda",    icon = icon("object-group"))#,
-        #menuItem("CLUST",  tabName = "clust",  icon = icon("tree")),
+        menuItem("LDA",    tabName = "lda",    icon = icon("object-group")),
+        menuItem("CLUST",  tabName = "clust",  icon = icon("tree"))#,
         #menuItem("KMEANS", tabName = "kmeans", icon = icon("scissors")),
         #menuItem("MAP",    tabName = "map",    icon = icon("map-marker")),
         #menuItem("Source", href="https://github.com/MomX/Momecs", icon = icon("github"))
@@ -70,7 +71,7 @@ Momecs <- function(x) {
 
         #lda panel ---------
         tabItem(tabName = "lda",
-                 uiOutput("lda_ui"),
+                uiOutput("lda_ui"),
                 fluidRow(
                   column(6,
                          h4("Leave-one-out CV Accuracy"),
@@ -82,12 +83,14 @@ Momecs <- function(x) {
                 fluidRow(
                   column(6,uiOutput("lda_plot")),
                   column(6, uiOutput("lda_CV"))
-                ))#,
-                # ,
-                # uiOutput("lda_CV"),
-                #verbatimTextOutput("lda_print"))
-                # verbatimTextOutput("lda_print2"))
-        # )
+                )
+        ),
+        #clust panel ---------
+        tabItem(tabName = "clust",
+                uiOutput("clust_ui"),
+                uiOutput("clust_plot")
+
+        )
       )
     ),
     skin="black"
@@ -157,20 +160,20 @@ Momecs <- function(x) {
                     multiple = TRUE)
       })
     )
-#
-#     output$filter_ui <- renderUI(
-#       lapply(colnames(data_full()$fac), function(i) {
-#         levels_i <- levels(data_full()$fac[, i] %>% unlist)
-#         size     <- ifelse(nlevels(levels_i) <= 8, nlevels(levels_i), 8)
-#         selectInput(inputId = paste0('fac_', i),
-#                     label = i,
-#                     choices =  levels_i,
-#                     selected = levels_i,
-#                     selectize = FALSE,
-#                     size = size,
-#                     multiple = TRUE)
-#       })
-#     )
+    #
+    #     output$filter_ui <- renderUI(
+    #       lapply(colnames(data_full()$fac), function(i) {
+    #         levels_i <- levels(data_full()$fac[, i] %>% unlist)
+    #         size     <- ifelse(nlevels(levels_i) <= 8, nlevels(levels_i), 8)
+    #         selectInput(inputId = paste0('fac_', i),
+    #                     label = i,
+    #                     choices =  levels_i,
+    #                     selected = levels_i,
+    #                     selectize = FALSE,
+    #                     size = size,
+    #                     multiple = TRUE)
+    #       })
+    #     )
 
     data_filtered <- reactive({
       if (!Momocs::is_fac(data_full()))
@@ -359,7 +362,7 @@ Momecs <- function(x) {
     data_lda <- reactive({
       # masticate f for plot_LDA
       # if (is.null(input$lda_fac2)) {
-        # f <- stats::as.formula(paste0("~", input$lda_fac1))
+      # f <- stats::as.formula(paste0("~", input$lda_fac1))
       # }
 
       if (is.null(input$lda_fac2) | input$lda_fac2=="NULL") {
@@ -367,11 +370,11 @@ Momecs <- function(x) {
       } else {
         f <- stats::as.formula(paste("~", input$lda_fac1, "+", input$lda_fac2))
       }
-# list(input$lda_fac1, input$lda_fac2, f)
+      # list(input$lda_fac1, input$lda_fac2, f)
       data_filtered() %>% Momocs::LDA(f)
     })
 
-    output$lda_print <- renderPrint(data_lda())
+    # output$lda_print <- renderPrint(data_lda())
     # output$lda_print2 <- renderPrint(data_lda() %>% plot_LDA %>% str)
     # lda_ui -----------
     nLDs <- reactive({
@@ -512,24 +515,24 @@ Momecs <- function(x) {
       lda_morphospace <- ifelse(input$lda_morphospace_position=="none", FALSE, TRUE)
       Momocs::plot_LDA(data_lda(),
 
-      axes=c(input$lda_axis1, input$lda_axis2),
-      # axes=1:2,
-      zoom=input$lda_zoom,
-      points=input$lda_points,
+                       axes=c(input$lda_axis1, input$lda_axis2),
+                       # axes=1:2,
+                       zoom=input$lda_zoom,
+                       points=input$lda_points,
 
-      labelgroups=input$lda_labelgroups,
-      legend=input$lda_legend,
+                       labelgroups=input$lda_labelgroups,
+                       legend=input$lda_legend,
 
-      # palette=palette_deliver(input$lda_palette),
+                       # palette=palette_deliver(input$lda_palette),
 
-      morphospace = lda_morphospace,
-      morphospace_position =  input$lda_morphospace_position,
+                       morphospace = lda_morphospace,
+                       morphospace_position =  input$lda_morphospace_position,
 
-      chull=input$lda_chull,
-      chullfilled=input$lda_chullfilled,
+                       chull=input$lda_chull,
+                       chullfilled=input$lda_chullfilled,
 
-      eigen=input$lda_eigen,
-      title=input$lda_title)
+                       eigen=input$lda_eigen,
+                       title=input$lda_title)
     },
     width=exprToFunction(input$lda_plot_width),
     height=exprToFunction(input$lda_plot_width))
@@ -549,17 +552,93 @@ Momecs <- function(x) {
       plotOutput("lda_CV0", height = input$lda_plot_width, width = input$lda_plot_width)
     })
 
-  output$lda_accuracy <-renderPrint({
-    data_lda()$CV.correct
-  })
+    output$lda_accuracy <-renderPrint({
+      data_lda()$CV.correct
+    })
 
-  output$lda_accuracy_class <-renderPrint({
-    data_lda()$CV.ce
-  })
+    output$lda_accuracy_class <-renderPrint({
+      data_lda()$CV.ce
+    })
+
+    # __CLUST__ ------
+
+    # clust_ui -----
+    output$clust_ui <- renderUI(
+      fluidRow(
+        # appearance column
+        column(4,
+               h4("Calculation"),
+
+               # dist method
+               selectInput("clust_dist_method",
+                           "dist_method",
+                           choices=c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+                           selected="euclidean",
+                           multiple = FALSE,
+                           selectize = FALSE),
+
+               # hclust method
+               selectInput("clust_hclust_method",
+                           "hclust_method",
+                           choices=c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
+                           selected="complete",
+                           multiple = FALSE,
+                           selectize = FALSE),
+
+               # k
+               numericInput("clust_k",
+                            "Cut into",
+                            value=1,
+                            min=1,
+                            max=20,
+                            step=1)
+        ),
+        column(4,
+               h4("Cosmetics"),
+
+               # fac choice
+               selectInput(inputId = "clust_fac",
+                           label="Color with",
+                           choices=c("NULL", colnames(data_filtered()$fac)),
+                           # selected="NULL",
+                           multiple=FALSE,
+                           selectize=FALSE),
+
+               # labels choice (2)
+               selectInput(inputId = "clust_labels",
+                           label="Label with",
+                           choices=c("NULL", colnames(data_filtered()$fac)),
+                           # selected="NULL",
+                           multiple=FALSE,
+                           selectize=FALSE),
+
+               numericInput(inputId = "clust_plot_width",
+                            label = "Plot width",
+                            min=200, max=2400, value=800, step = 100)
+        )
+      )
+    )
+
+    # clust_plot -----
+    output$clust_plot0 <- renderPlot({
+
+      Momocs::CLUST(data_filtered(),
+                    fac=input$clust_fac,
+                    labels=input$clust_labels,
+                    dist_method   = input$clust_dist_method,
+                    hclust_method = input$clust_hclust_method,
+                    k             = input$clust_k)
+    },
+    width=exprToFunction(input$clust_plot_width),
+    height=exprToFunction(input$clust_plot_width))
+
+    output$clust_plot <- renderUI({
+      plotOutput("clust_plot0", height = input$clust_plot_width, width = input$clust_plot_width)
+    })
 
   } # server end
 
- shinyApp(ui, server)
+  shinyApp(ui, server)
 }
 
 # Momecs()

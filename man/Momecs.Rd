@@ -18,6 +18,7 @@ Morphometric (and multivariate) exploration controlled by shiny
 Momecs()
 
 # passing a Coe
-hearts \%>\% efourier(3) \%>\% Momecs()
+h <- hearts \%>\% efourier(3)
+Momecs(h)
 }
 }
