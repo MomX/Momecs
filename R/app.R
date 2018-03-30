@@ -1,8 +1,6 @@
 #' Morphometric (and multivariate) exploration controlled by shiny
 #'
 #' @param x a Coe or PCA object. If missing, [toy] datasets are used
-#' @param launch.brower `logical` to feed [shiny::runApp], whether to
-#' launch the app within your default browser (default: `FALSE`)
 #' @examples
 #' \dontrun{
 #' # on toy dataset(s)
@@ -12,9 +10,10 @@
 #' hearts %>% efourier(3) %>% Momecs()
 #' }
 #' @export
-Momecs <- function(x, launch.brower=FALSE) {
+Momecs <- function(x) {
   requireNamespace("shiny")
   requireNamespace("shinydashboard")
+  requireNamespace("Momocs")
   # __before__ ----
   # toy dataset to start playing/developing
   if (missing(x))
@@ -47,14 +46,17 @@ Momecs <- function(x, launch.brower=FALSE) {
                 uiOutput("filter_x"),
                 # data_full row
                 fluidRow(
-                  column(5,
+                  column(2,
+                         h4("Columns"),
+                         uiOutput("filter_columns")),
+                  column(4,
                          h4("Full"),
                          verbatimTextOutput("data_full")),
                   column(2,
                          h4("Include"),
                          textOutput("filter_prop")),
                   # uiOutput("filter_ui")),
-                  column(5,
+                  column(4,
                          h4("Filtered"),
                          verbatimTextOutput("data_filtered"))
                 )
@@ -69,8 +71,21 @@ Momecs <- function(x, launch.brower=FALSE) {
         #lda panel ---------
         tabItem(tabName = "lda",
                  uiOutput("lda_ui"),
-                uiOutput("lda_plot"),
-                verbatimTextOutput("lda_print"))
+                fluidRow(
+                  column(6,
+                         h4("Leave-one-out CV Accuracy"),
+                         verbatimTextOutput("lda_accuracy")),
+                  column(6,
+                         h4("Class accuracy"),
+                         verbatimTextOutput("lda_accuracy_class"))
+                ),
+                fluidRow(
+                  column(6,uiOutput("lda_plot")),
+                  column(6, uiOutput("lda_CV"))
+                ))#,
+                # ,
+                # uiOutput("lda_CV"),
+                #verbatimTextOutput("lda_print"))
                 # verbatimTextOutput("lda_print2"))
         # )
       )
@@ -117,8 +132,20 @@ Momecs <- function(x, launch.brower=FALSE) {
     })
 
     # filter_ui ----------
+    output$filter_columns <- renderUI({
+      selectInput(inputId = "filter_columns",
+                  label="Columns to filter with",
+                  choices = colnames(data_full()$fac),
+                  selected = colnames(data_full()$fac),
+                  selectize=FALSE,
+                  size=ncol(data_full()$fac),
+                  multiple=TRUE)
+    })
+
+
+
     output$filter_ui <- renderUI(
-      lapply(colnames(data_full()$fac), function(i) {
+      lapply(input[['filter_columns']], function(i) {
         levels_i <- levels(data_full()$fac[, i] %>% unlist)
         size     <- ifelse(nlevels(levels_i) <= 8, nlevels(levels_i), 8)
         selectInput(inputId = paste0('fac_', i),
@@ -130,6 +157,20 @@ Momecs <- function(x, launch.brower=FALSE) {
                     multiple = TRUE)
       })
     )
+#
+#     output$filter_ui <- renderUI(
+#       lapply(colnames(data_full()$fac), function(i) {
+#         levels_i <- levels(data_full()$fac[, i] %>% unlist)
+#         size     <- ifelse(nlevels(levels_i) <= 8, nlevels(levels_i), 8)
+#         selectInput(inputId = paste0('fac_', i),
+#                     label = i,
+#                     choices =  levels_i,
+#                     selected = levels_i,
+#                     selectize = FALSE,
+#                     size = size,
+#                     multiple = TRUE)
+#       })
+#     )
 
     data_filtered <- reactive({
       if (!Momocs::is_fac(data_full()))
@@ -379,7 +420,7 @@ Momecs <- function(x, launch.brower=FALSE) {
                div(style="display: inline-block;vertical-align:top; width: 80px;",
                    numericInput(inputId = "lda_plot_width",
                                 label = "Plot width",
-                                min=200, max=2400, value=800, step = 100)
+                                min=200, max=2400, value=400, step = 100)
                ),
 
                # plot zoom
@@ -497,14 +538,31 @@ Momecs <- function(x, launch.brower=FALSE) {
       plotOutput("lda_plot0", height = input$lda_plot_width, width = input$lda_plot_width)
     })
 
+    # lda_CV -----
+    output$lda_CV0 <- renderPlot({
+      Momocs::plot_CV(data_lda())
+    },
+    width=exprToFunction(input$lda_plot_width),
+    height=exprToFunction(input$lda_plot_width))
+
+    output$lda_CV <- renderUI({
+      plotOutput("lda_CV0", height = input$lda_plot_width, width = input$lda_plot_width)
+    })
+
+  output$lda_accuracy <-renderPrint({
+    data_lda()$CV.correct
+  })
+
+  output$lda_accuracy_class <-renderPrint({
+    data_lda()$CV.ce
+  })
+
   } # server end
 
-
-  # runApp(list(ui = ui, server = server), launch.browser = launch.brower)
-  shinyApp(ui, server)
+ shinyApp(ui, server)
 }
 
-# Momecs()
+Momecs()
 # hearts %>% efourier(3)  %>% Momecs()
 # olea %>% chop(~view) %>% lapply(opoly, 5, nb.pts=50) -> a
 # Momecs(a)
