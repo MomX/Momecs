@@ -562,7 +562,7 @@ Momecs <- function(x) {
  shinyApp(ui, server)
 }
 
-Momecs()
+# Momecs()
 # hearts %>% efourier(3)  %>% Momecs()
 # olea %>% chop(~view) %>% lapply(opoly, 5, nb.pts=50) -> a
 # Momecs(a)
