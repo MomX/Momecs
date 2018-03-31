@@ -20,6 +20,11 @@ Momecs <- function(x) {
   if (missing(x))
     x <- Momecs::toy
 
+  # # check validity of name when passed
+  # .check(exists(deparse(substitute(x))),
+  #        "x does not exist")
+  # }
+
   # __ui__ ---------
   ui <- dashboardPage(
     dashboardHeader(
@@ -104,13 +109,15 @@ Momecs <- function(x) {
     output$filter_x <- renderUI({
       if (!is_Coe(x)){
         fluidRow(
-          h4("Pick one dataset"),
-          # data picking
-          selectInput(inputId = "data_choice",
-                      label="",
-                      choices=names(x),
-                      multiple=FALSE,
-                      selectize=FALSE)
+          column(4,
+                 h4("Pick one dataset"),
+                 # data picking
+                 selectInput(inputId = "data_choice",
+                             label="",
+                             choices=names(x),
+                             multiple=FALSE,
+                             selectize=FALSE)
+          )
         )
       } else {
         fluidRow()
@@ -123,7 +130,8 @@ Momecs <- function(x) {
       if (!is_Coe(x))
         x[[input$data_choice]]
       else
-        x[[]]
+        # x[[]]
+        x
     )
 
     output$data_full <- renderPrint(data_full())
@@ -131,7 +139,7 @@ Momecs <- function(x) {
     output$filter_prop <- renderText({
       fr <- data_full() %>% length()
       to <- data_filtered() %>% length()
-      paste0(to, "/", fr, " - ", signif(100*to/fr, 3), "%")
+      paste0(signif(100*to/fr, 3), "% [ ", to, "/", fr, " ]")
     })
 
     # filter_ui ----------
@@ -160,20 +168,6 @@ Momecs <- function(x) {
                     multiple = TRUE)
       })
     )
-    #
-    #     output$filter_ui <- renderUI(
-    #       lapply(colnames(data_full()$fac), function(i) {
-    #         levels_i <- levels(data_full()$fac[, i] %>% unlist)
-    #         size     <- ifelse(nlevels(levels_i) <= 8, nlevels(levels_i), 8)
-    #         selectInput(inputId = paste0('fac_', i),
-    #                     label = i,
-    #                     choices =  levels_i,
-    #                     selected = levels_i,
-    #                     selectize = FALSE,
-    #                     size = size,
-    #                     multiple = TRUE)
-    #       })
-    #     )
 
     data_filtered <- reactive({
       if (!Momocs::is_fac(data_full()))
@@ -251,8 +245,8 @@ Momecs <- function(x) {
                div(style="display: inline-block;vertical-align:top; width: 80px;",
                    selectInput(inputId = "pca_fac1",
                                label="1st cov",
-                               choices=colnames(data_pca()$fac),
-                               selected=colnames(data_pca()$fac)[1],
+                               choices=c("NULL", colnames(data_pca()$fac)),
+                               selected="NULL",
                                multiple=FALSE,
                                selectize=FALSE)
                ),
@@ -570,20 +564,50 @@ Momecs <- function(x) {
                h4("Calculation"),
 
                # dist method
-               selectInput("clust_dist_method",
-                           "dist_method",
-                           choices=c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
-                           selected="euclidean",
-                           multiple = FALSE,
-                           selectize = FALSE),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput("clust_dist_method",
+                               "dist_method",
+                               choices=c("euclidean", "maximum", "manhattan",
+                                         "canberra", "binary", "minkowski"),
+                               selected="euclidean",
+                               multiple = FALSE,
+                               selectize = FALSE)
+               ),
 
                # hclust method
-               selectInput("clust_hclust_method",
-                           "hclust_method",
-                           choices=c("ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid"),
-                           selected="complete",
-                           multiple = FALSE,
-                           selectize = FALSE),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput("clust_hclust_method",
+                               "hclust_method",
+                               choices=c("ward.D", "ward.D2", "single",
+                                         "complete", "average", "mcquitty",
+                                         "median", "centroid"),
+                               selected="complete",
+                               multiple = FALSE,
+                               selectize = FALSE)
+               )
+        ),
+        column(4,
+               h4("Groups"),
+
+               # fac choice
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "clust_fac",
+                               label="Color with",
+                               choices=c("NULL", colnames(data_filtered()$fac)),
+                               # selected="NULL",
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
+
+               # labels choice (2)
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   selectInput(inputId = "clust_labels",
+                               label="Label with",
+                               choices=c("NULL", colnames(data_filtered()$fac)),
+                               # selected="NULL",
+                               multiple=FALSE,
+                               selectize=FALSE)
+               ),
 
                # k
                numericInput("clust_k",
@@ -593,24 +617,20 @@ Momecs <- function(x) {
                             max=20,
                             step=1)
         ),
+
         column(4,
                h4("Cosmetics"),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "clust_cex",
+                                label="Labels size",
+                                min=0.25, max=2, value=0.5, step=0.25)
+               ),
 
-               # fac choice
-               selectInput(inputId = "clust_fac",
-                           label="Color with",
-                           choices=c("NULL", colnames(data_filtered()$fac)),
-                           # selected="NULL",
-                           multiple=FALSE,
-                           selectize=FALSE),
-
-               # labels choice (2)
-               selectInput(inputId = "clust_labels",
-                           label="Label with",
-                           choices=c("NULL", colnames(data_filtered()$fac)),
-                           # selected="NULL",
-                           multiple=FALSE,
-                           selectize=FALSE),
+               div(style="display: inline-block;vertical-align:top; width: 80px;",
+                   numericInput(inputId = "clust_lwd",
+                                label="Branches width",
+                                min=0.25, max=2, value=0.5, step=0.25)
+               ),
 
                numericInput(inputId = "clust_plot_width",
                             label = "Plot width",
@@ -621,26 +641,30 @@ Momecs <- function(x) {
 
     # clust_plot -----
     output$clust_plot0 <- renderPlot({
-
       Momocs::CLUST(data_filtered(),
-                    fac=input$clust_fac,
-                    labels=input$clust_labels,
+                    fac           = input$clust_fac,
+                    labels        = input$clust_labels,
                     dist_method   = input$clust_dist_method,
                     hclust_method = input$clust_hclust_method,
-                    k             = input$clust_k)
+                    k             = input$clust_k,
+                    cex           = input$clust_cex,
+                    lwd           = input$clust_lwd)
     },
+
     width=exprToFunction(input$clust_plot_width),
     height=exprToFunction(input$clust_plot_width))
 
     output$clust_plot <- renderUI({
-      plotOutput("clust_plot0", height = input$clust_plot_width, width = input$clust_plot_width)
+      plotOutput("clust_plot0",
+                 width = input$clust_plot_width,
+                 height = input$clust_plot_width)
     })
 
-  } # server end
+  } # server ends
 
+  # run the app
   shinyApp(ui, server)
 }
-
 # Momecs()
 # hearts %>% efourier(3)  %>% Momecs()
 # olea %>% chop(~view) %>% lapply(opoly, 5, nb.pts=50) -> a
